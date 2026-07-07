@@ -31,7 +31,7 @@ The application was reached at `http://localhost:3000`. I created an account and
 
 I searched for the word `apple`. The page showed the matching products and the title became `Search Results - apple`. In DevTools → Network there is a `search?q=apple` request, so the term is sent to the server — but only to fetch the products shown in the grid, not to build the title (this becomes important below).
 
-![Normal search for apple](dom0.png)
+![[dom0.png]]
 *Fig. 1 — Normal search: the title shows "Search Results - apple" and the Network tab shows the `search?q=apple` request.*
 
 ### 2. Injecting the script
@@ -44,12 +44,12 @@ I replaced `apple` with the payload and pressed Enter:
 
 The application inserted the input into the DOM as HTML without sanitization, so the iframe's `javascript:` URI executed and an alert box appeared with the text `xss`.
 
-![DOM XSS alert](dom1.png)
+![[dom1.png]]
 *Fig. 2 — The "xss" alert box triggered from the Search field.*
 
 Notably, with the payload in the search box the product search returns `No results found` (the payload is not a product), yet the alert still fires. If the injection depended on the server's response, an empty result would produce no script — so the value that lands in the title must be read by client-side JavaScript directly from the URL.
 
-![DOM XSS alert with no results](dom2.png)
+![[dom2.png]]
 *Fig. 3 — The alert fires while the results area shows "No results found", showing the injection does not depend on the server response.*
 
 ### 3. Why this is DOM XSS
@@ -64,13 +64,13 @@ Notably, with the payload in the search box the product search returns `No resul
 
 To reach the tracking page I added `Apple Juice (1000ml)` to the basket, opened the basket to confirm it, then went through Checkout (delivery address, delivery method, payment) and placed the order, reaching the order-completion page which provides a `Track Orders` link.
 
-![Basket](reflected0.png)
+![[reflected0.png]]
 *Fig. 4 — Apple Juice (1000ml) added to the basket.*
 
-![Delivery method](reflected1.png)
+![[reflected1.png]]
 *Fig. 5 — Checkout: delivery address and delivery method selected.*
 
-![Order completion](reflected2.png)
+!![[reflected2.png]]
 *Fig. 6 — Order-completion page with the Track Orders link and the order id in the URL.*
 
 ### 2. Observing the tracking URL and the API
@@ -83,17 +83,17 @@ Tracking the order opened a URL of the form `#/track-result?id=<order-id>`, and 
 
 The `orderId` field matched the `id` from the URL, i.e. the id is sent to the backend and reflected back in the response.
 
-![Track result page](reflected3.png)
+![[reflected3.png]]
 *Fig. 7 — Track-result page: the title shows "Search Results - &lt;order-id&gt;".*
 
-![Network response orderId](reflected4.png)
+![[reflected4.png]]
 *Fig. 8 — Network tab: the track-order response echoes the URL id in the `orderId` field.*
 
 ### 3. Changing the id parameter
 
 To confirm the reflection I replaced the real id with a harmless test value, `1234`. The title updated to `Search Results - 1234` and the response's `orderId` changed to `"1234"`. This confirms that whatever is placed in `id` is forwarded to the backend and returned inside `orderId`.
 
-![id changed to 1234](reflected5.png)
+![[reflected5.png]]
 *Fig. 9 — id changed to 1234: the response returns `orderId "1234"`, confirming the value is reflected by the server.*
 
 ### 4. Injecting the XSS payload
@@ -106,10 +106,10 @@ http://localhost:3000/#/track-result?id=<iframe src="javascript:alert(`xss`)">
 
 The backend responded with JSON containing the exact string I sent inside `orderId`. The client-side code inserted this value into the DOM as HTML, which executed the payload and displayed the `xss` alert.
 
-![Network response with payload in orderId](reflected6.png)
+![[reflected6.png]]
 *Fig. 10 — Network tab: the server reflects the exact iframe payload back inside the `orderId` field.*
 
-![Reflected XSS alert](reflected7.png)
+![[reflected7.png]]
 *Fig. 11 — The "xss" alert box triggered from the track-result id parameter.*
 
 ### 5. Why this is Reflected XSS
