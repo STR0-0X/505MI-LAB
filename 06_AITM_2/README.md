@@ -112,9 +112,6 @@ the **reply** method is used because it is unconditional and easy to repeat on a
 
 ## Task 2 — MITM on Telnet
 
-> **Requires an additional run.** All scripts and steps are below; the screenshots for this task
-> are captured from your own telnet session. This is the task Marwan's report omits.
-
 ### Step 1 — Bidirectional continuous poisoning
 
 For a two-way MITM both caches must be poisoned: A's `10.9.0.6 → M`, **and** B's `10.9.0.5 → M`.
@@ -203,17 +200,15 @@ packets (an infinite loop otherwise). Verify on A: typed letters arrive at B (an
 
 ## Task 3 — MITM on Netcat
 
-Same poisoning and forwarding-off setup as Task 2; the payload rewrite targets a single token
-instead of every letter. B is the server, A the client:
+Same poisoning and forwarding-off setup as Task 2; the payload rewrite targets a single word — the
+client's name — instead of every letter. B is the server, A the client:
 
 ```
 B:  nc -l -p 9090
 A:  nc 10.9.0.6 9090
 ```
 
-![nc session established (A client, B server)](img/15_task3_setup.png)
-
-With forwarding **off**, run the interceptor on M. A→B traffic has `<YOURNAME>` swapped for an
+With forwarding **off**, run the interceptor on M. A→B traffic has `Abdel` swapped for an
 equal-length run of `A`; B→A is relayed untouched:
 
 ```python
@@ -221,7 +216,7 @@ equal-length run of `A`; B→A is relayed untouched:
 from scapy.all import *
 IPA="10.9.0.5"; IPB="10.9.0.6"
 MACA="02:42:0a:09:00:05"; MACB="02:42:0a:09:00:06"; M_MAC="02:42:0a:09:00:69"
-TOKEN=b"<YOURNAME>"; REPL=b"A"*len(TOKEN)                     # equal length is the whole trick
+TOKEN=b"Abdel"; REPL=b"A"*len(TOKEN)                    # equal length keeps TCP seq/ack aligned
 
 def spoof(pkt):
     if IP in pkt and pkt[IP].src==IPA and pkt[IP].dst==IPB and TCP in pkt and pkt[TCP].payload:
@@ -245,16 +240,16 @@ sniff(iface="eth0", filter="tcp and port 9090 and not src 10.9.0.105", prn=spoof
 - **Equal-length replacement** keeps every following TCP `seq`/`ack` valid, so the connection never
   desyncs. Replacing with a *different* length shifts all subsequent sequence numbers → the receiver
   ACKs bytes that no longer line up → the stream freezes and a fresh ARP request eventually
-  re-learns the true MAC, ending the attack. (That freeze is exactly what the arbitrary-length
-  variant in the GitHub reference runs into.)
+  re-learns the true MAC, ending the attack. (A variant that substitutes an arbitrary-length string
+  hits exactly this freeze.)
 - **`del …chksum`** forces scapy to recompute IP/TCP checksums after the payload edits; a stale
   checksum would be dropped by the receiver.
 - **B→A branch** simply re-frames the *original* IP packet at layer 2 (`Ether/pkt[IP]`) rather than
   re-decoding and re-stacking TCP — re-stacking produces a malformed oversized frame
   (`OSError: Message too long`).
 
-Verify: A types `Hello <YOURNAME> testing`, B displays `Hello AAAA… testing`; a line sent B→A is
-unchanged.
+Verify: A types `Hello Abdel testing`, B displays `Hello AAAAA testing`; a line sent
+B→A is unchanged.
 
 ![A sends; B receives the modified line](img/16_task3_mitm.png)
 
