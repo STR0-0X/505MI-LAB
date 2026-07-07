@@ -44,7 +44,7 @@ I replaced `apple` with the payload and pressed Enter:
 
 The application inserted the input into the DOM as HTML without sanitization, so the iframe's `javascript:` URI executed and an alert box appeared with the text `xss`.
 
-![[dom1.png]]
+![[dom1 .png]]
 *Fig. 2 — The "xss" alert box triggered from the Search field.*
 
 Notably, with the payload in the search box the product search returns `No results found` (the payload is not a product), yet the alert still fires. If the injection depended on the server's response, an empty result would produce no script — so the value that lands in the title must be read by client-side JavaScript directly from the URL.
