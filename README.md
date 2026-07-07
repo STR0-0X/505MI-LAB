@@ -8,3 +8,6 @@ XSS: https://docsify-this.net/?basePath=https://raw.githubusercontent.com/STR0-0
 
 SQLI: https://docsify-this.net/?basePath=https://raw.githubusercontent.com/STR0-0X/505MI-LAB/main/05_SQLI&homepage=README.md&zoom-images=true#/
 
+AITM: https://docsify-this.net/?basePath=https://raw.githubusercontent.com/STR0-0X/505MI-LAB/main/06_AITM&homepage=README.md#/
+
+AITM_2: https://docsify-this.net/?basePath=https://raw.githubusercontent.com/STR0-0X/505MI-LAB/main/06_AITM_2&homepage=README.md#/
