@@ -31,7 +31,7 @@ The application was reached at `http://localhost:3000`. I created an account and
 
 I searched for the word `apple`. The page showed the matching products and the title became `Search Results - apple`. In DevTools → Network there is a `search?q=apple` request, so the term is sent to the server — but only to fetch the products shown in the grid, not to build the title (this becomes important below).
 
-![[dom0.png]]
+![Fig. 1](https://raw.githubusercontent.com/USERNAME/REPO/main/dom0.png)
 *Fig. 1 — Normal search: the title shows "Search Results - apple" and the Network tab shows the `search?q=apple` request.*
 
 ### 2. Injecting the script
@@ -70,7 +70,7 @@ To reach the tracking page I added `Apple Juice (1000ml)` to the basket, opened 
 ![[reflected1.png]]
 *Fig. 5 — Checkout: delivery address and delivery method selected.*
 
-!![[reflected2.png]]
+![[reflected2.png]]
 *Fig. 6 — Order-completion page with the Track Orders link and the order id in the URL.*
 
 ### 2. Observing the tracking URL and the API
